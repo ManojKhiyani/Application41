@@ -1,0 +1,252 @@
+﻿@model dynamic;
+@using Microsoft.AspNetCore.Http;
+@using BOS.StarterCode.Models;
+@using BOS.StarterCode.Helpers;
+@using Newtonsoft.Json;
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@using BOS.StarterCode.Models.BOSModels;
+@{
+    WhiteLabel appconfig = null;
+    if (HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig") != null)
+    {
+        appconfig = JsonConvert.DeserializeObject<WhiteLabel>(HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig"));
+    }
+}
+@if (Model != null)
+{
+    <div class="navbar-bg"></div>
+    <nav class="navbar navbar-expand-lg main-navbar">
+        <div><a href="#" data-toggle="sidebar" class="nav-link nav-link-lg float-left"><i class="fas fa-bars"></i></a>  <span class="app-name"> @(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ?  appconfig.Name : "") </span></div>
+    </nav>
+    <div class="main-sidebar">
+        <aside id="sidebar-wrapper">
+            <div class="sidebar-brand">
+                <a href="#">@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ?  appconfig.Name : Configuration.GetSection("ApplicationName").Value)</a>
+            </div>
+            <div class="sidebar-brand sidebar-brand-sm">
+                @if (appconfig != null && !string.IsNullOrEmpty(appconfig.Name))
+                {
+                    <a href="#">@BOS.StarterCode.Helpers.SessionExtensions.ToInitials(appconfig.Name)</a>
+                }
+                else
+                {
+                    <a href="#">@BOS.StarterCode.Helpers.SessionExtensions.ToInitials(Configuration.GetSection("ApplicationName").Value)</a>
+                }
+            </div>
+            <ul class="sidebar-menu">
+                @if (Model.ModuleOperations != null)
+                {
+                    List<Module> moduleList = new List<Module>();
+                    moduleList = Model.ModuleOperations;
+                    //Navigation for user profile
+                    Module profileNav = moduleList?.FirstOrDefault(m => m.Code == "MYPFL");
+                    //Navigation for super admin user
+                    List<Module> superAdminNav = new List<Module>();
+                    superAdminNav = moduleList.Where(m => m.Code == "USERS" || m.Code == "ROLES").ToList();
+                    //Navigation for application
+                    List<Module> applicationNav = new List<Module>();
+                    applicationNav = moduleList.Where(m => m.Code != "USERS" && m.Code != "ROLES" && m.Code != "MYPFL").ToList();
+                    <li class="nav-item dropdown@((Context.Request.Path.Value.Contains("/Users")!=true &&
+                                    Context.Request.Path.Value.Contains("/Roles")!=true &&
+                                    Context.Request.Path.Value.Contains("/Dashboard")!=true)
+                                    ? " active":"")">
+                        <a href="#" class="nav-link has-dropdown"><i class="fas fa-fire"></i><span>Application Nav</span></a>
+                        <ul class="dropdown-menu" style="display: none;">
+                            @*Navigation for user profile*@
+                            <!---->
+                            @if (profileNav != null)
+                            {
+                                <li class="nav-item dropdown@((Context.Request.Path.Value.Contains("/Profile")==true) ? " active":"")" id="@profileNav.Id" parentmoduleid="@profileNav.ParentId">
+                                    <a href="/Profile/Index" class="nav-link"><span>@profileNav.Name</span></a>
+                                </li>
+                            }
+                            <!--Navigation for application -->
+                            @if (applicationNav != null && applicationNav.Count > 0)
+                            {
+                                @foreach (var module in applicationNav.OrderBy(x => x.Rank).ToList())
+                                {
+                                    if (module.PagePath == null)
+                                    {
+                                        module.PagePath = "#";
+                                    }
+                                    if (module.IsSite)
+                                    {
+                                        try
+                                        {
+                                            var data = JsonConvert.DeserializeObject<List<ComponentUrlMapping1>>(@module.PagePath);
+                                            if (data != null && data.Count > 0)
+                                            {
+                                                string urls = string.Empty;
+                                                foreach (var d in data)
+                                                {
+                                                    if (string.IsNullOrEmpty(urls))
+                                                    {
+                                                        urls = d.Url;
+                                                    }
+                                                    else
+                                                    {
+                                                        urls += "," + d.Url;
+                                                    }
+                                                }
+                                                module.PagePath = urls;
+                                            }
+                                        }
+                                        catch
+                                        {
+
+                                        }
+                                    }
+                                    @if (module.ChildComponents.Count == 0)
+                                    {
+                                        if (module.Code != "PRMNS")
+                                        {
+                                            <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                                                <a href="@module.PagePath" class="nav-link"><span>@module.Name</span></a>
+                                            </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                                            <a href="@module.PagePath" class="nav-link has-dropdown"><span>@module.Name</span></a>
+                                            @if (module.ChildComponents.Count > 0)
+                                            {
+                                                if (module.Code != "PRMNS")
+                                                {
+                                                    <ul class="dropdown-menu" id="@module.Id" parentmoduleid="@module.ParentId">
+                                                        @if (module.ChildComponents != null && module.ChildComponents.Count > 0)
+                                                        {
+                                                            <partial name="~/Views/Shared/Navigation/_NavigationMenuItem.cshtml" model="@module.ChildComponents" />
+                                                        }
+                                                    </ul>
+                                                }
+                                            }
+                                        </li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown@((Context.Request.Path.Value.Contains("/Users")==true ||
+                                    Context.Request.Path.Value.Contains("/Roles")==true)
+                                    ? " active":"")">
+                        <a href="#" class="nav-link has-dropdown"><i class="fas fa-columns"></i><span>Super Admin</span></a>
+                        <ul class="dropdown-menu" style="display: none;">
+                            <!--Navigation for super admin user navigation-->
+                            @if (superAdminNav != null && superAdminNav.Count > 0)
+                            {
+                                @foreach (var module in superAdminNav.OrderBy(x => x.Rank).ToList())
+                                {
+                                    if (module.PagePath == null)
+                                    {
+                                        module.PagePath = "";
+                                    }
+                                    if (module.PagePath == "")
+                                    {
+                                        if (module.Code == "ROLES")
+                                        {
+                                            module.PagePath = "/Roles";
+                                        }
+                                        else if (module.Code == "USERS")
+                                        {
+                                            module.PagePath = "/Users";
+                                        }
+                                    }
+                                    @if (module.ChildComponents.Count == 0)
+                                    {
+                                        if (@module.Code != "PRMNS")
+                                        {
+                                            <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                                                <a href="@module.PagePath" class="nav-link"><span>@module.Name</span></a>
+                                            </li>
+                                        }
+                                    }
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link has-dropdown"><i class="fas fa-th"></i><span>Analytics</span></a>
+                        <ul class="dropdown-menu" style="display: none;">
+                            <li class="nav-item dropdown active">
+                                <a href="#" class="nav-link"><span></span></a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </aside>
+        <div class="dropdown left-profile">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user" aria-expanded="false">
+                @if (Model.Initials != null)
+                {
+                    <i class="fas fa-user-circle" style="font-size: 32px;"></i>
+                    <div class="profile-nm"> Hi @Model.Initials.ToUpper() </div>
+                }
+                else
+                {
+                    <i class="fas fa-user-circle" style="font-size: 32px;"></i>
+                    <div class="profile-nm"> Hi @Model.Username</div>
+                }
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" x-placement="right-end">
+                @if (Model.Username != null)
+                {
+                    <div class="dropdown-title dropdown-title-ellipsis">@Model.Username</div>
+                }
+                @if (Model.Roles != null)
+                {
+                    <div class="dropdown-title">@Model.Roles</div>
+                }
+                <a href="#" class="dropdown-item has-icon">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item has-icon text-danger" onclick="InitiateSignOut();">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+}
+<style>
+    [data-letters]:before {
+        content: attr(data-letters);
+        display: inline-block;
+        font-size: 2.5em;
+        width: 2.5em;
+        height: 2.5em;
+        line-height: 2.5em;
+        text-align: center;
+        border-radius: 50%;
+        background: #ffc107;
+        vertical-align: middle;
+        margin-right: 5em;
+        color: white;
+    }
+
+    .sidebar-mini .sidebar-brand.sidebar-brand-sm a {
+        font-size: 24px;
+    }
+</style>
+@if (Model != null && Model.CurrentModuleId != null)
+{
+    <script>
+        $(document).ready(function () {
+            DisplayDashboardCustomMessage(Model.CurrentModuleId);
+            NavigationState(Model.CurrentModuleId);
+        });
+    </script>
+}
+<script type="text/javascript">
+    jQuery(function ($) {
+        $("#close-sidebar").click(function () {
+            $(".page-wrapper").removeClass("toggled");
+        });
+        $("#show-sidebar").click(function () {
+            $(".page-wrapper").addClass("toggled");
+        });
+    });
+</script>

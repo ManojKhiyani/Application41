@@ -1,0 +1,60 @@
+﻿@model dynamic;
+@using BOS.StarterCode.Models.BOSModels;
+@using Newtonsoft.Json;
+@if (Model != null)
+{
+    Module moduleList = new Module();
+    moduleList.ChildComponents = Model;
+    @foreach (var module in moduleList.ChildComponents.OrderBy(x => x.Rank).ToList())
+    {
+        if (module.IsSite)
+        {
+            try
+            {
+                var data = JsonConvert.DeserializeObject<List<ComponentUrlMapping1>>(module.PagePath);
+                if (data != null && data.Count > 0)
+                {
+                    string urls = string.Empty;
+                    foreach (var d in data)
+                    {
+                        if (string.IsNullOrEmpty(urls))
+                        {
+                            urls = d.Url;
+                        }
+                        else
+                        {
+                            urls += "," + d.Url;
+                        }
+                    }
+                    module.PagePath = urls;
+                }
+            }
+            catch
+            {
+
+            }
+        }
+        @if (module.ChildComponents.Count == 0)
+        {
+            if (module.Code != "PRMNS")
+            {
+                <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                    <a href="@module.PagePath" class="nav-link"><span>@module.Name</span></a>
+                    @*<a asp-controller="Navigation" asp-action="NavigateToModule" asp-route-id="@module.Id" asp-route-code="@module.Code" asp-route-isdefault="@module.IsDefault" class="nav-link"><span>@module.Name</span></a>*@
+                </li>
+            }
+        }
+        else
+        {
+            <li class="nav-item dropdown@((Context.Request.Path.Value.Contains($"/{module.PagePath}")==true) ? " active":"")" id="@module.Id" parentmoduleid="@module.ParentId">
+                <a href="@module.PagePath" class="nav-link has-dropdown"><span>@module.Name</span></a>
+                <ul class="dropdown-menu" id="@module.Id" parentmoduleid="@module.ParentId">
+                    @if (module.ChildComponents != null && module.ChildComponents.Count > 0)
+                    {
+                        <partial name="~/Views/Shared/Navigation/_NavigationMenuItem.cshtml" model="@module.ChildComponents" />
+                    }
+                </ul>
+            </li>
+        }
+    }
+}

@@ -1,0 +1,151 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
+<html>
+@{
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - BOS StarterCode</title>
+        <!--Custom BOS References-->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link href="../lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <!-- General CSS Files -->
+        @*<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">*@
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <!-- CSS Libraries -->
+        <link rel="stylesheet" href="../lib/bootstrap-social/bootstrap-social.css">
+        <!-- Template CSS -->
+        <link rel="stylesheet" href="../css/style.css">
+        <link rel="stylesheet" href="../css/custom.css">
+        <link rel="stylesheet" href="../css/components.css">
+        <link rel="shortcut icon" type="image/png" href="../images/favicon.png" />
+        <!-- End Custom BOS References-->
+        <script src="../lib/jquery/dist/jquery.min.js"></script>
+        <script src="../lib/popper.js/umd/popper.min.js"></script>
+        <script src="../lib/bootstrap/dist/js/bootstrap.min.js"></script>
+        @{
+            var hotJarValue = @Configuration.GetSection("Hotjar").Value;
+            var googleAnalyticsValue = @Configuration.GetSection("GoogleAnalytics").Value;
+            if (hotJarValue == "null" || hotJarValue == null)
+            {
+                hotJarValue = "";
+            }
+            if (googleAnalyticsValue == "null" || googleAnalyticsValue == null)
+            {
+                googleAnalyticsValue = "";
+            }
+        }
+        @Html.Raw(hotJarValue)
+        @Html.Raw(googleAnalyticsValue)
+    </head>
+}
+<body>
+    <div id="app">
+        <section class="section">
+            <div class="container mt-5">
+                @*<partial name="_CookieConsentPartial" />*@
+                @RenderBody()
+            </div>
+        </section>
+    </div>
+    <div class="modal" id="DisplayNotification" tabindex="-1">
+        <div class="modal-dialog inside-modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header d-block pt-2">
+                    <h5 class="modal-title text-center alert-modal-title" id="lblheader"></h5>
+                    <button type="button" class="close position-absolute" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body text-center pb-1">
+                    <div class="row form-group mb-0">
+                        <div class="col-md-12">
+                            <label class="alert-msg" id="lblmessage"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-block text-center">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/customscripts/custom.js?v=1.0"></script>
+    <script>
+        function DisplayDialog(dialogObj) {
+            if (dialogObj.Success == true) {
+                $('#lblheader').text('Success!');
+            }
+            else if (dialogObj.Success == false) {
+                $('#lblheader').text('Oops!');
+            }
+            $('#lblmessage').text(dialogObj.Message);
+            $('#DisplayNotification').modal('show');
+        } 
+        var ConfirmationObj = null;
+        function DisplayConfirmationDialog(dialogObj) {
+            ConfirmationObj = null;
+            ConfirmationObj = dialogObj;
+            var dialog = '<div id="display_message1" class="logout_div"> <div class="row"><div class="col-md-12 text-center mb-3" >'
+                + ((dialogObj.Message !== '') ? dialogObj.Message : '') + '</div>'
+                + '<div class="col-md-6 text-center"><button class="btn btn-warning" onclick="OnButtonClickedConfirmCancel(); return false;">'
+                + dialogObj.CancelData.Label + '</button>'
+                + '</div><div class="col-md-6 text-center"><button class="btn btn-primary" onclick="OnButtonClickedConfirmOk(); return false;">'
+                + dialogObj.OkData.Label + '</button>'
+                + '</div></div></div>';
+            $("body").append($(dialog));
+        };
+        function DisplayInfoConfirmationDialog(dialogObj) {
+            ConfirmationObj = null;
+            ConfirmationObj = dialogObj;
+            var dialog = '<div id="display_infoconfirm" class="logout_div"> <div class="row"><div class="col-md-12 text-center mb-3" >'
+                + ((dialogObj.Message !== '') ? dialogObj.Message : '') + '</div>'
+                + '</div><div class="col-md-12 text-center"><button class="btn btn-primary" onclick="OnButtonClickedConfirmOk(); return false;">'
+                + dialogObj.OkData.Label + '</button>'
+                + '</div></div></div>';
+            $("body").append($(dialog));
+        };
+        function OnButtonClickedConfirmOk() {
+            okObj = ConfirmationObj;
+            switch (okObj.CallFrom) {
+                case "SignOut":
+                    TriggerSignOut();
+                    break;
+                case "DeleteUser":
+                    TriggerDeleteUser(okObj.OkData.Data);
+                    break;
+                case "ChangeUserActiveStatus":
+                    TriggerChangeUserActiveStatus(okObj.OkData.Data);
+                    break;
+                case "DeleteRole":
+                    TriggerDeleteRole(okObj.OkData.Data);
+                    break;
+                case "BodyClick":
+                    TriggerSignOut();
+                    break;
+            }
+            $("#display_message1").remove();
+        }
+        function OnButtonClickedConfirmCancel() {
+            cancelObj = ConfirmationObj;
+            switch (cancelObj.CallFrom) {
+                case "SignOut":
+                    break;
+            }
+            $("#display_message1").remove();
+        }
+        jQuery(function ($) {
+            $("#close-sidebar").click(function () {
+                $(".page-wrapper").removeClass("toggled");
+            });
+            $("#show-sidebar").click(function () {
+                $(".page-wrapper").addClass("toggled");
+            });
+        });
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,86 @@
+﻿<style>
+    [data-letters]:before {
+        content: attr(data-letters);
+        display: inline-block;
+        font-size: 2.5em;
+        width: 2.5em;
+        height: 2.5em;
+        line-height: 2.5em;
+        text-align: center;
+        border-radius: 50%;
+        background: #FFC107;
+        vertical-align: middle;
+        margin-right: 5em;
+        color: white;
+    }
+    .btn-errorpage {
+        background-color: #6e6e6e;
+        border-color: #6e6e6e;
+        padding: 5px 12px !important;
+        color: #fff;
+    }
+        .btn-errorpage:hover, .btn-errorpage.active, .btn-errorpage:active, .btn-errorpage:focus {
+            background: #3e3e3e;
+            border: 1px solid #3e3e3e;
+            color: #fff;
+        }
+    body {
+        overflow: hidden
+    }
+    .btn-errorpage:hover {
+        background-color: #909090 !important;
+        border-color: #909090 !important;
+        padding: 5px 12px !important;
+        color: #fff !important;
+    }
+</style>
+<div class="container-fluid mt-5" style="text-align: center;">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="align-center">
+                <img src="~/images/autumnleaves.png" style="width:300px;" />
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="divMessage" style="font-size: x-large; color: #FFC107;"></div>
+                    <h4 style="color:#ffcc00"></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row" style="margin-top: 30px;
+">
+        <div class="col-md-12">
+            <div class="align-center">
+                <p id="pInitials" data-letters="404" style="
+    margin-left: 175px;
+"></p>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 30px;
+">
+        <div class="col-md-12">
+            <div id="divHTTPErrorMessage">
+                <h5>Oops..! The page you are looking for doesn't exist.</h5>
+            </div>
+            <div id="divActionMessage" style="margin-top:20px">
+                <h6>Make sure the page is available at the specified path.</h6>
+            </div>
+            <div style="margin-top:20px">
+                <a href="https://developers.bosframework.com/StarterCode/Web/DotNetCore" target="_blank">Know more about this error</a>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row" style="margin-top:40px">
+        <div class="col-md-12">
+            <div>
+                <a class="btn btn-errorpage" href="/Dashboard">Back to Home</a>
+            </div>
+        </div>
+    </div>
+</div>

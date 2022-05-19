@@ -1,0 +1,106 @@
+﻿@model BOS.StarterCode.Models.RegistrationModel
+@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Http;
+@using BOS.StarterCode.Models.BOSModels;
+@inject IConfiguration Configuration
+@using Newtonsoft.Json;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@{
+    ViewData["Title"] = "Register";
+    Layout = "LoginLayout";
+    WhiteLabel appconfig = null;
+    if (HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig") != null)
+    {
+        appconfig = JsonConvert.DeserializeObject<WhiteLabel>(HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig"));
+    }
+}
+<div class="row">
+    <div class="col-12 col-sm-8 offset-sm-2 col-md-8 offset-md-2 col-lg-8 offset-lg-2 col-xl-6 offset-xl-3">
+        <div class="login-brand">
+            <div class="logo-big">
+                <div class="brandlogo" style="@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Logo)?$"background-image: url('{appconfig.Logo}');" : $"background-image: url('../images/logo.png');")"></div>
+                @*<img src=@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Logo) ?  appconfig.Logo : "../images/logo.png") />*@
+            </div>
+        </div>
+        <div class="text-center mb-3">
+            <h3>@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ? appconfig.Name : Configuration.GetSection("ApplicationName").Value)</h3>
+        </div>
+        <div class="card card-primary">
+            <div class="card-header"><h4>Register</h4></div>
+            <div class="card-body">
+                <form asp-action="RegisterUser" class="needs-validation" novalidate="">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group position-relative">
+                                <label asp-for="FirstName" class="control-label"></label>
+                                <input asp-for="FirstName" class="form-control" placeholder="Enter First Name" autocomplete="off" />
+                                <span asp-validation-for="FirstName" class="text-danger error_text"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group position-relative">
+                                <label asp-for="LastName" class="control-label"></label>
+                                <input asp-for="LastName" class="form-control" placeholder="Enter Last Name" autocomplete="off" />
+                                <span asp-validation-for="LastName" class="text-danger error_text"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group position-relative">
+                                <label asp-for="EmailAddress" class="control-label"></label>
+                                <input asp-for="EmailAddress" class="form-control" placeholder="Enter Email Address" autocomplete="off" />
+                                <span asp-validation-for="EmailAddress" class="text-danger error_text"></span>
+                            </div>
+                        </div>
+                        @*<div class="col-md-6 none">
+                                <div class="form-group position-relative">
+                                    <label asp-for="Password" class="control-label"></label>
+                                    <input asp-for="Password" class="form-control" placeholder="Enter Password" value="password"/>
+                                    <span asp-validation-for="Password" class="text-danger error_text"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 none">
+                                <div class="form-group position-relative">
+                                    <label asp-for="ConfirmPassword" class="control-label"></label>
+                                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" value="password"/>
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger error_text"></span>
+                                </div>
+                            </div>*@
+                        <div class="col-md-12">
+                            <div class="form-group" id="divButtonAndError">
+                                <button class="btn btn-primary btn-lg btn-block" tabindex="4">
+                                    Register
+                                </button>
+                                <div class="invalid-feedback">
+                                    @Html.ValidationMessage("CustomError")
+                                </div>
+                            </div>
+                        </div>                        
+                        <div class="col-md-12 text-right float-right">
+                            <p>Already have an account? <a href='/Auth'>Log In</a></p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>        
+        <div class="simple-footer">
+            @(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ? appconfig.Name : Configuration.GetSection("ApplicationName").Value) &copy;  2020
+        </div>
+    </div>
+</div>
+<div class="login_container height-auto">
+</div>
+<script>
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    });
+</script>
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

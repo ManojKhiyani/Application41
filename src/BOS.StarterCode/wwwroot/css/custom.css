@@ -1,0 +1,237 @@
+.bars {
+    background: #fff;
+    color: blue;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    padding: 0 !important;
+    border-radius: 50%;
+    position: absolute;
+    left: 238px;
+    box-shadow: 0 0 2px 2px #dedede;
+    z-index: 999;
+    top: 18px;
+}
+
+.sidebar-mini .bars {
+    left: 52px;
+}
+
+.bars i {
+    font-size: 12px;
+    line-height: 1;
+    padding-top: 8px;
+    margin-left: 0 !important;
+}
+
+.left-profile {
+    position: absolute;
+    bottom: 10px;
+}
+
+    .left-profile .dropdown-toggle::after {
+        content: '';
+        display: none;
+    }
+
+.profile-nm {
+    display: inline-block;
+}
+
+.sidebar-mini .profile-nm {
+    display: none;
+}
+
+.login-brand {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    box-shadow: 1px 3px 8px 2px #dedede;
+    background: #fff;
+    margin: 30px auto;
+}
+
+    .login-brand .logo-big {
+        padding-top: 28px;
+        text-align: center;
+    }
+
+.nav-item.dropdown.active .dropdown-menu {
+    display: block !important
+}
+
+.app-name {
+    float: left;
+    font-size: 20px;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+@media screen and (max-width: 1024px) {
+    .bars {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .navbar-bg, .navbar {
+        display: none;
+    }
+}
+
+.logout_div {
+    position: absolute;
+    width: 450px;
+    min-height: 100px;
+    height: auto;
+    background: #fff;
+    top: 50%;
+    left: 50%;
+    color: #383838;
+    padding: 15px;
+    z-index: 9999;
+    margin-left: -200px;
+    margin-top: -50px;
+    border: 1px solid #78828a;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+    .logout_div .btn-secondary {
+        background-color: #cdd3d8;
+        border-color: #cdd3d8;
+        color: #000000;
+        box-shadow: none !important;
+    }
+
+        .logout_div .btn-secondary:hover {
+            background-color: #cdd3d8 !important;
+            border-color: #cdd3d8 !important;
+            color: #666 !important;
+            box-shadow: none !important;
+        }
+/*Added by Amit*/
+.main-footer {
+    position: fixed;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+}
+
+.permissions-div, .content-container {
+    height: calc(100vh - 280px);
+}
+
+.cookie-alert {
+    position: fixed;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    border-radius: 0;
+    background-color: #264d96 !important;
+}
+
+.display-alert {
+    position: fixed;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    border-radius: 0 !important;
+    background-color: #264d96 !important;
+}
+
+.cookie-alert .btn-secondary {
+    background-color: #cdd3d8;
+    border-color: #cdd3d8;
+    color: #000000;
+    box-shadow: none !important;
+}
+
+    .cookie-alert .btn-secondary:hover {
+        background-color: #cdd3d8 !important;
+        border-color: #cdd3d8 !important;
+        color: #666 !important;
+        box-shadow: none !important;
+    }
+
+.required_field {
+    font-size: 11px;
+    color: #ff0000;
+}
+
+.login-brand .logo-big {
+    padding-top: 0px !important;
+    text-align: center;
+}
+
+.brandlogo {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 85%;
+    height: 80px;
+    width: 80px;
+}
+
+.display_dialog.alert {
+    height: 70px !important;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100vw;
+}
+
+    .display_dialog.alert.alert-success, .display_dialog.alert.alert-danger, .display_dialog.alert.alert-warning {
+        background-color: #264d96 !important;
+        border-radius: 0;
+    }
+
+.sidebar-menu .dropdown-menu li a.active {
+    color: #264d96 !important;
+    font-weight: 600 !important;
+}
+
+body {
+    overflow-x: hidden !important;
+}
+.inside-modal {
+    display: block;
+    width: 100%;
+    text-align: center;
+    float: left;
+    clear: both;
+}
+
+.brandlogo.inside-modal-logo {
+    height: 40px;
+    width: 80px;
+    margin: 0 auto;
+    background-size: contain;
+}
+
+.close.position-absolute {
+    top: 5px;
+    right: 10px;
+}
+
+.inside-modal-dialog {
+    top: 50%;
+    margin-top: -123px;
+}
+
+.alert-msg {
+    font-size: 16px;
+}
+
+.modal-title.alert-modal-title {
+    font-size: 22px;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 410px;
+    }
+}

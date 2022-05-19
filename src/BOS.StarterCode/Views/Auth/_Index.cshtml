@@ -1,0 +1,143 @@
+﻿@using Microsoft.Extensions.Configuration
+@using BOS.StarterCode.Helpers;
+@inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Http;
+@using BOS.StarterCode.Models.BOSModels;
+@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http.Features
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@model AuthModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = "LoginLayout";
+    WhiteLabel appconfig = null;
+    if (HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig") != null)
+    {
+        appconfig = JsonConvert.DeserializeObject<WhiteLabel>(HttpContextAccessor.HttpContext.Session.GetString("ApplicationConfig"));
+    }
+    var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
+    var showBanner = !consentFeature?.CanTrack ?? false;
+    var cookieString = consentFeature?.CreateConsentCookie();
+}
+<div class="row">
+    <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+        <div class="login-brand">
+            <div class="logo-big">
+                <div class="brandlogo" style="@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Logo)?$"background-image: url('{appconfig.Logo}');" : $"background-image: url('../images/logo.png');")"></div>
+                @*<img src=@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Logo) ?  appconfig.Logo : "../images/logo.png") />*@
+            </div>
+        </div>
+        <div class="text-center mb-3">
+            <h3>@(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ? appconfig.Name : Configuration.GetSection("ApplicationName").Value)</h3>
+        </div>
+        <div class="card card-primary">
+            <div class="card-header"><h4>Login</h4></div>
+            <div class="card-body">
+                <form asp-action="AuthenticateUser" class="needs-validation" novalidate="">
+                    <div class="form-group">
+                        <label asp-for="Username">Email</label>
+                        <input asp-for="Username" class="form-control" placeholder="Enter Email" id="loginUsername" tabindex="1" autofocus>
+                        <div class="invalid-feedback">
+                            <span asp-validation-for="Username" class="text-danger error_text"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="d-block">
+                            <div class="password-show d-none" id="divShowPassword">
+                                <i class="fas fa-eye-slash text-primary" data-toggle="tooltip" data-placement="left" title="" aria-hidden="true" data-original-title="Show Password"></i>
+                                <span class="sr-only">Show Password</span>
+                            </div>
+                            <label asp-for="Password" class="control-label">Password</label>
+                            <div class="float-right">
+                                <a asp-action="ForgotPassword" class="text-small">
+                                    Forgot Password?
+                                </a>
+                            </div>
+                        </div>
+                        <input type="password" class="form-control" placeholder="Enter Password" asp-for="Password" id="inputPassword" tabindex="2">
+                        <div class="invalid-feedback">
+                            <span asp-validation-for="Password" class="text-danger error_text"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" name="remember" class="custom-control-input" tabindex="3" id="remember-me">
+                            <label class="custom-control-label" for="remember-me">Remember Me</label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="divButtonAndError">
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="4">
+                            Login
+                        </button>
+                        @Html.ValidationMessage("CustomError")
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mt-5 text-muted text-center">
+            Don't have an account? <a asp-action="Register">Register</a>
+        </div>
+        <div class="simple-footer">
+            @(appconfig!=null && !string.IsNullOrEmpty(appconfig.Name) ? appconfig.Name : Configuration.GetSection("ApplicationName").Value) &copy;  2020
+        </div>
+    </div>
+</div>
+@if (ViewBag.Message != null)
+{
+    <script>
+        $(document).ready(function () {
+            $(function () {
+                DisplayDialog({ Success: true, Message: '@ViewBag.Message' });
+            });
+        });
+    </script>
+}
+<script>
+    $(document).ready(function () {
+        TriggerSessionSet();
+        if (document.cookie.indexOf('.AspNet.Consent') == -1) {
+        }
+        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="popover"]').popover();
+    });
+    $('#divShowPassword').mousedown(function () {
+        $('#inputPassword').attr('type', 'text');
+    });
+    $('#divShowPassword').mouseup(function () {
+        $('#inputPassword').attr('type', 'password');
+    });
+    $("#loginUsername, #inputPassword").keyup(function () {
+        if ($("#divButtonAndError>span").hasClass("field-validation-error")) {
+            $("#divButtonAndError>span").remove();
+        }
+    });
+    function TriggerSessionSet() {
+        //document.cookie = "@cookieString";
+        var myDate = new Date();
+        myDate.setDate(myDate.getDate() + 365);
+        var cookie = '.AspNet.Consent=yes; expires=' + myDate + '; path=/; samesite=strict';
+        document.cookie = cookie;
+        $.ajax({
+            type: "GET",
+            url: "/Auth/SetApplicationToken",
+            async: false,
+            success: function (response) {
+                console.log(response.Message);
+            },
+            failure: function (response) {
+                console.log(response.Message);
+            },
+            error: function (response) {
+                console.log(response.Message);
+            }
+        });
+    }
+</script>
+<style>
+    .field-validation-error {
+        color: red;
+    }
+</style>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
